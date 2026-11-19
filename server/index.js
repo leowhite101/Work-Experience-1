@@ -14,8 +14,27 @@ app.post('/contact', (req, res) => {
   const email = (req.body.email || '').trim();
   const message = (req.body.message || '').trim();
 
+  // Challenge 3: Reject submissions that fill the honeypot
+  const website = (req.body.website || '').trim();
+
+  if (website) {
+    return res.json({ ok: true });
+  }
+
   if (!name || !email || !message) {
+
+
     return res.status(400).json({ ok: false, error: 'Please fill in your name, email and message.' });
+  }
+
+   // Challenge 3: Reject submissions made too quickly
+  const formLoadedAt = Number(req.body.formLoadedAt);
+  const elapsedTime = Date.now() - formLoadedAt;
+
+  if (!Number.isFinite(formLoadedAt) ||
+      formLoadedAt <= 0 ||
+      elapsedTime < 3000) {
+    return res.json({ ok: true });
   }
 
   sendToSupport({ name, email, message });
